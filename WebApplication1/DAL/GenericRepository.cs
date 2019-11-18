@@ -11,6 +11,8 @@ namespace WebApplication1.DAL
      * T - Entity
      * U - Type of ID
      * K - extention of DbContext
+     * 
+     * For more information: https://medium.com/net-core/repository-pattern-implementation-in-asp-net-core-21e01c6664d7
      */
     public abstract class GenericRepository<T, U, K> : IRepository<T, U>
         where T : class, IEntity

@@ -12,6 +12,11 @@ namespace WebApplication1.DAL
      * U - Type of ID
      * K - extention of DbContext
      * 
+     * As this is "repository" class is generic we need to define the DbSets in DbContext
+     * because this class may recive multiples implementations of IEntity and DbContexts
+     * and we dont have access to the DbSets from the DbContext, therefore, its necesary to initialize 
+     * each one individualy.
+     * 
      * For more information: https://medium.com/net-core/repository-pattern-implementation-in-asp-net-core-21e01c6664d7
      */
     public abstract class GenericRepository<T, U, K> : IRepository<T, U>

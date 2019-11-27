@@ -29,7 +29,7 @@ namespace WebApplication1
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<TodoContext>(opt => opt.UseMySql(Configuration["TodosApp:ConnectionString"])); // <--- Secret
-            services.AddTransient<TodoRepository>();
+            services.AddScoped<TodoRepository>();
             services.AddControllers();
         }
 

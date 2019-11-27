@@ -17,7 +17,7 @@ namespace WebApplication1.Models
         public long Id { get; set; }
 
         [Column(name: "title")]
-        [StringLength(255, MinimumLength = 5, ErrorMessage = "The minimun length of the message is invalid")]
+        [StringLength(255)]
         [Required(ErrorMessage = "Title is required")]
         public string Title { get; set; }
 
@@ -35,7 +35,6 @@ namespace WebApplication1.Models
         public DateTime EndDate { get; set; }
 
         [Column(name: "is_completed")]
-        [MaxLength(1, ErrorMessage = "The maximun length of the parameter is invalid")]
-        public byte IsCompleted { get; set; } = 0;
+        public bool IsCompleted { get; set; } = false;
     }
 }

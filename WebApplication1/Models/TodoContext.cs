@@ -13,6 +13,12 @@ namespace WebApplication1.Models
         {
         }
 
+        /**
+         * With repository pattern is necesary to register 
+         * the DbSets for each entity in a DbContext, in this case, TodoContext
+         * See: GenericRepository.cs for more information.
+         */
+
         public DbSet<TodoItem> TodoItems { get; set; }
     }
 }

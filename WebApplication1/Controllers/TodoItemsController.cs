@@ -80,7 +80,12 @@ namespace WebApplication1.Controllers
         {
             await todoRepository.Post(todoItem);
 
-            return CreatedAtAction(nameof(TodoItem), new { id = todoItem.Id }, todoItem);
+            /**
+             * 1 param: name of the action(other http method in the controller) used to form the url
+             * 2 param: data for the url before mention
+             * 3 param: body
+             */
+            return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
         }
 
         // DELETE: api/TodoItems/5

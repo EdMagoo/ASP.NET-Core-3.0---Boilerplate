@@ -38,6 +38,7 @@ namespace WebApplication1
         {
             if (env.IsDevelopment())
             {
+                // use this option only in development mode
                 app.UseDeveloperExceptionPage();
             }
 

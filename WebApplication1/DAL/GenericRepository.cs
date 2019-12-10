@@ -44,6 +44,9 @@ namespace WebApplication1.DAL
             return await dbSet.FindAsync(id);
         }
 
+        // there are other form of get method, like a get method with IQueryable and filters
+        // for more info: https://docs.microsoft.com/en-us/aspnet/mvc/overview/older-versions/getting-started-with-ef-5-using-mvc-4/implementing-the-repository-and-unit-of-work-patterns-in-an-asp-net-mvc-application#create-a-generic-repository
+
         public async Task<T> Put(T entity)
         {
             dbContext.Entry(entity).State = EntityState.Modified;

@@ -6,4 +6,5 @@ Current Braches:
 * Respository Pattern
 * Pagination
 * Basic Configuration to connect with a database ⬅ included in master branch
+* Dynamic Queries
 * more coming 🔜

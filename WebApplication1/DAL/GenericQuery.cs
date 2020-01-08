@@ -28,9 +28,9 @@ namespace WebApplication1.DAL
             Query = dbContext.Set<T>().AsNoTracking();
         }
 
-        protected IQueryable<T> BuildQuery(string includedProperties = "")
+        protected IQueryable<T> BuildQuery()
         {
-            IQueryable<T> query = Query.Include(includedProperties);
+            IQueryable<T> query = Query;
                 
             /*
              * Initial operations

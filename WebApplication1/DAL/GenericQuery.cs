@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication1.DAL
@@ -28,9 +30,10 @@ namespace WebApplication1.DAL
             Query = dbContext.Set<T>().AsNoTracking();
         }
 
-        protected IQueryable<T> BuildQuery()
+        protected IQueryable<T> BuildQuery(Expression<Func<T, bool>> filter)
         {
-            IQueryable<T> query = Query;
+            IQueryable<T> query = Query
+                .Where(filter);
                 
             /*
              * Initial operations

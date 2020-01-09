@@ -46,6 +46,7 @@ namespace WebApplication1.DAL
 
             if (queryFilters.QueryWhereFilter?.WhereOperation != null)
             {
+                // convert whereExpression in a Expression<Func<Tsource, bool>> type
                 var whereExpression = BuildWhere(queryFilters.QueryWhereFilter);
             }
 
@@ -64,7 +65,17 @@ namespace WebApplication1.DAL
                         // comparing property vs value
                         Expression left = Expression.Property(pe, queryWhereFilter.Property);
                         Expression right = Expression.Constant(queryWhereFilter.Value, left.Type);
-                        whereExpression = Expression.Equal(left, right);
+                        
+                        if (whereExpression != null && queryWhereFilter.WhereOperator != null)
+                        {
+                            whereExpression = AddWhereOperator(whereExpression, Expression.Equal(left, right),
+                                queryWhereFilter.WhereOperator);
+                        }
+                        else
+                        {
+                            whereExpression = Expression.Equal(left, right);
+                        }
+                        
                         break;
                     case WhereOperation.LessThan:
                         break;
@@ -93,12 +104,30 @@ namespace WebApplication1.DAL
                     case null:
                         break;
                     default:
-                        throw new InvalidOperationException("WHERE operation not found!");
+                        throw new ArgumentOutOfRangeException(nameof(queryWhereFilter.WhereOperation), queryWhereFilter.WhereOperation, "WHERE operator not found!");
                 }
 
                 if (queryWhereFilter.NextFilter == null) return whereExpression;
                 queryWhereFilter = queryWhereFilter.NextFilter;
             }
+        }
+
+        Expression AddWhereOperator(Expression whereExpressionLeft, Expression whereExpressionRight, WhereOperator? whereOperator)
+        {
+            switch (whereOperator)
+            {
+                case WhereOperator.And:
+                    whereExpressionLeft = Expression.And(whereExpressionLeft, whereExpressionRight);
+                    break;
+                case WhereOperator.Or:
+                    break;
+                case WhereOperator.Not:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(whereOperator), whereOperator, "WHERE operator not found!");
+            }
+            
+            return whereExpressionLeft;
         }
     }
 }

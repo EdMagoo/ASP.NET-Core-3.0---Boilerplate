@@ -54,7 +54,7 @@ namespace WebApplication1.DAL
         // #3 <- it is possible that this would be another property or a function to compare. in future replace for something that match a value and a property
         public object Value { get; set; }
         // #4 note for use: the first QueryWhereFilter doesn't have a WhereOperator
-        public WhereOperator? ChainOperator { get; set; }
+        public WhereOperator? WhereOperator { get; set; }
         // #5
         public QueryWhereFilter NextFilter { get; set; }
     }

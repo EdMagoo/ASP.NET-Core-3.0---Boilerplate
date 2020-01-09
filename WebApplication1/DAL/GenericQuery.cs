@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace WebApplication1.DAL
 {
@@ -23,18 +24,16 @@ namespace WebApplication1.DAL
         where U : struct
         where K : DbContext
     {
-        IQueryable<T> Query { get; set; }
-    
+
+        DbSet<T> DbSet { get; set; }
+        
         protected GenericQuery(K dbContext)
         {
-            Query = dbContext.Set<T>().AsNoTracking();
+            DbSet = dbContext.Set<T>();
         }
 
-        protected IQueryable<T> BuildQuery(Expression<Func<T, bool>> filter)
+        protected IQueryable<T> BuildQuery(QueryFiltersDto queryFilters)
         {
-            IQueryable<T> query = Query
-                .Where(filter);
-                
             /*
              * Initial operations
              *
@@ -43,7 +42,63 @@ namespace WebApplication1.DAL
              * Order by
              */
 
+            var query = DbSet.AsNoTracking();
+
+            if (queryFilters.QueryWhereFilter?.WhereOperation != null)
+            {
+                var whereExpression = BuildWhere(queryFilters.QueryWhereFilter);
+            }
+
             return query;
+        }
+
+        Expression BuildWhere(QueryWhereFilter queryWhereFilter, Expression whereExpression = null)
+        {
+            while (true)
+            {
+                var pe = Expression.Parameter(typeof(T), "entity");
+
+                switch (queryWhereFilter.WhereOperation)
+                {
+                    case WhereOperation.EqualTo:
+                        // comparing property vs value
+                        Expression left = Expression.Property(pe, queryWhereFilter.Property);
+                        Expression right = Expression.Constant(queryWhereFilter.Value, left.Type);
+                        whereExpression = Expression.Equal(left, right);
+                        break;
+                    case WhereOperation.LessThan:
+                        break;
+                    case WhereOperation.GreaterThan:
+                        break;
+                    case WhereOperation.LessThanOrEquals:
+                        break;
+                    case WhereOperation.GreaterThanOrEquals:
+                        break;
+                    case WhereOperation.NotEqualTo:
+                        break;
+                    case WhereOperation.Like:
+                        break;
+                    case WhereOperation.IsNull:
+                        break;
+                    case WhereOperation.NotLike:
+                        break;
+                    case WhereOperation.NotNull:
+                        break;
+                    case WhereOperation.Between:
+                        break;
+                    case WhereOperation.In:
+                        break;
+                    case WhereOperation.Some:
+                        break;
+                    case null:
+                        break;
+                    default:
+                        throw new InvalidOperationException("WHERE operation not found!");
+                }
+
+                if (queryWhereFilter.NextFilter == null) return whereExpression;
+                queryWhereFilter = queryWhereFilter.NextFilter;
+            }
         }
     }
 }

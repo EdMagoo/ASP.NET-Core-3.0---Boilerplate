@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.DAL;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
 
@@ -28,6 +29,12 @@ namespace WebApplication1.Controllers
             return await todoRepository.GetAll();
         }
 
+        [HttpGet("TodoQuery")]
+        public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItemsQuery([FromBody] QueryFiltersDto queryFiltersDto)
+        {
+            return await todoRepository.QueryGet(queryFiltersDto);
+        } 
+
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
@@ -41,7 +48,7 @@ namespace WebApplication1.Controllers
 
             return todoItem;
         }
-
+        
         // PUT: api/TodoItems/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.

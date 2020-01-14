@@ -52,13 +52,16 @@ namespace WebApplication1.DAL
         // #2
         public string Property { get; set; }
         // #3 <- it is possible that this would be another property or a function to compare. in future replace for something that match a value and a property
-        public object Value { get; set; }
+        public string Value { get; set; } // validate this type. other option is Object type but at the moment is more complicated to do the cast
         // #4 note for use: the first QueryWhereFilter doesn't have a WhereOperator
         public WhereOperator? WhereOperator { get; set; }
         // #5
         public QueryWhereFilter NextFilter { get; set; }
     }
     
+    /*
+     * this class define how a client have to use the queryAPI or custom-queries
+     */
     public class QueryFiltersDto
     {
         public QueryWhereFilter QueryWhereFilter { get; set; }

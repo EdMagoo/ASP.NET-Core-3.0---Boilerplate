@@ -25,8 +25,8 @@ namespace WebApplication1.DAL
         where K : DbContext
     {
 
-        private readonly K dbContext;
-        private readonly DbSet<T> dbSet;
+        readonly K dbContext;
+        readonly DbSet<T> dbSet;
 
         public GenericRepository(K dbContext)
         {
@@ -82,6 +82,11 @@ namespace WebApplication1.DAL
         public bool Exist(T entity)
         {
             return dbSet.Any(e => e.Id == entity.Id);
+        }
+
+        public async Task<List<T>> QueryGet(QueryFiltersDto queryFiltersDto)
+        {
+            return await GenericQuery.BuildQuery<T>(dbSet, queryFiltersDto).ToListAsync();
         }
     }
 }

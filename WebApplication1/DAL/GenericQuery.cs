@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace WebApplication1.DAL
 {
@@ -19,20 +18,9 @@ namespace WebApplication1.DAL
      * [HAVING [FUNCTION(entity1.property1)] =||<||>||<=||>=||!=||LIKE value1 [AND||OR ...]]
      * [ORDER BY entity1.property1 ASC||DESC[, ...]]
      */
-    public abstract class GenericQuery<T, U, K>  
-        where T : class, IEntity
-        where U : struct
-        where K : DbContext
+    public static class GenericQuery
     {
-
-        DbSet<T> DbSet { get; set; }
-        
-        protected GenericQuery(K dbContext)
-        {
-            DbSet = dbContext.Set<T>();
-        }
-
-        protected IQueryable<T> BuildQuery(QueryFiltersDto queryFilters)
+        public static IQueryable<T> BuildQuery<T>(DbSet<T> dbSet, QueryFiltersDto queryFilters) where  T : class, IEntity
         {
             /*
              * Initial operations
@@ -42,30 +30,32 @@ namespace WebApplication1.DAL
              * Order by
              */
 
-            var query = DbSet.AsNoTracking();
+            var query = dbSet.AsNoTracking();
 
-            if (queryFilters.QueryWhereFilter?.WhereOperation != null)
-            {
-                // convert whereExpression in a Expression<Func<Tsource, bool>> type
-                var whereExpression = BuildWhere(queryFilters.QueryWhereFilter);
-            }
+            if (queryFilters.QueryWhereFilter?.WhereOperation == null) return query;
+            
+            var whereFunc = BuildWhere<T>(queryFilters.QueryWhereFilter);
+            query = query.Where(whereFunc);
 
             return query;
         }
-
-        Expression BuildWhere(QueryWhereFilter queryWhereFilter, Expression whereExpression = null)
+        
+        static Expression<Func<T, bool>> BuildWhere<T>(QueryWhereFilter queryWhereFilter) where T : class, IEntity
         {
+            var pe = Expression.Parameter(typeof(T), typeof(T).Name);
+            Expression whereExpression = null;
+            
             while (true)
             {
-                var pe = Expression.Parameter(typeof(T), "entity");
 
                 switch (queryWhereFilter.WhereOperation)
                 {
                     case WhereOperation.EqualTo:
                         // comparing property vs value
                         Expression left = Expression.Property(pe, queryWhereFilter.Property);
-                        Expression right = Expression.Constant(queryWhereFilter.Value, left.Type);
-                        
+                        // probably this is not secure, but it's very useful XD
+                        Expression right = Expression.Constant(TypeDescriptor.GetConverter(left.Type).ConvertFromString(queryWhereFilter.Value), left.Type);
+
                         if (whereExpression != null && queryWhereFilter.WhereOperator != null)
                         {
                             whereExpression = AddWhereOperator(whereExpression, Expression.Equal(left, right),
@@ -107,12 +97,16 @@ namespace WebApplication1.DAL
                         throw new ArgumentOutOfRangeException(nameof(queryWhereFilter.WhereOperation), queryWhereFilter.WhereOperation, "WHERE operator not found!");
                 }
 
-                if (queryWhereFilter.NextFilter == null) return whereExpression;
+                if (queryWhereFilter.NextFilter == null && whereExpression != null)
+                {
+                    var whereFunc = Expression.Lambda<Func<T, bool>>(whereExpression, pe);
+                    return whereFunc;
+                }
                 queryWhereFilter = queryWhereFilter.NextFilter;
             }
         }
 
-        Expression AddWhereOperator(Expression whereExpressionLeft, Expression whereExpressionRight, WhereOperator? whereOperator)
+        static Expression AddWhereOperator(Expression whereExpressionLeft, Expression whereExpressionRight, WhereOperator? whereOperator)
         {
             switch (whereOperator)
             {
@@ -120,8 +114,9 @@ namespace WebApplication1.DAL
                     whereExpressionLeft = Expression.And(whereExpressionLeft, whereExpressionRight);
                     break;
                 case WhereOperator.Or:
+                    whereExpressionLeft = Expression.OrElse(whereExpressionLeft, whereExpressionRight);
                     break;
-                case WhereOperator.Not:
+                case WhereOperator.Not: // this is not != or <>
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(whereOperator), whereOperator, "WHERE operator not found!");

@@ -29,6 +29,8 @@ namespace WebApplication1.Models
         [DataType(DataType.DateTime)]
         [Required(ErrorMessage = "Start date is required")]
         public DateTime StartDate { get; set; } 
+        // remember that in mysql, if we want to store the fractional part we must declare DATETIME(6)
+        // AVOID TO USE TIMESTAMP
 
         [Column(name: "end_date")]
         [DataType(DataType.DateTime)]
